@@ -1,0 +1,44 @@
+###################################################################################################################
+##Purpose: This Program reads the weblogic JMS config files and lists the JMS queues by their respective clusters ##
+## Author: Chetana Katpally
+###################################################################################################################
+#!ussr/bin/python -w 
+
+import xml.dom.minidom as DOM # Pckg with minimal implementation of the DOM interface. 
+import glob # Simple API to read list of files on the filesystem
+from collections import defaultdict
+
+# Note that when Python parses an XML document, the content is stored in memory as unicode.
+# For readability you may wish to use the encoding of your choice. In this program I used utf-8
+
+
+dq_jmsName = dict()
+jmsList = ()
+files = glob.glob("*.xml")
+
+for fname in files:
+    xmldoc = DOM.parse(fname)
+    #print xmldoc
+    
+    udqList = xmldoc.getElementsByTagName('distributed-queue')
+    #print "\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n"
+    #print "The number of queues in %s : %d \n" %(fname, len(udqList))
+    for udq in udqList:
+        #print "JMS Queues Info"
+        if udq.hasAttribute("name"):
+            dq = udq.getAttribute("name").encode("utf-8")
+            jmsName = udq.getElementsByTagName("jndi-name")[0].childNodes[0].data.encode("utf-8")
+            #print "%s : %s" %(dq, jmsName)
+            try:
+                dq_jmsName[jmsName].append(dq)
+            except KeyError:
+                dq_jmsName[jmsName] = [dq]
+            
+            
+fopen = open("foo.txt", "w")
+#print dq_jmsName
+for key in dq_jmsName.iterkeys():
+    fopen.write("%s : %s \n" %(key, sorted(dq_jmsName[key])))
+    print "%s : %s" %(key, sorted(dq_jmsName[key]))
+
+fopen.close()
