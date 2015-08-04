@@ -1,2 +1,2 @@
 # Python
-Everyday dabbling with python code.
+Dabble with python code.
