@@ -6,7 +6,7 @@
 
 import xml.dom.minidom as DOM # Pckg with minimal implementation of the DOM interface. 
 import glob # Simple API to read list of files on the filesystem
-from collections import defaultdict
+
 
 # Note that when Python parses an XML document, the content is stored in memory as unicode.
 # For readability you may wish to use the encoding of your choice. In this program I used utf-8
