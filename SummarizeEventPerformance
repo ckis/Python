@@ -1,0 +1,79 @@
+############################################################################################################
+#Author:       Chetana Katpally
+#Date Created: May 30, 2014
+#Description:  Reads a specific event within the logs and summarizes the performance of the event
+############################################################################################################
+
+#!usr/local/bin/python -w
+
+import time
+import os
+import glob
+
+logFilePath = "/opt/*/logs"
+
+os.chdir(logFilePath)
+fileList = sorted(glob.glob("*.log"))
+measure = "Message processed"
+currCount = 0
+
+
+def processFile(file):
+
+        messageProcessed = []
+        listLen = 0
+        filePath = logFilePath + "/" + file
+        try:
+                fh = open(filePath, "r") # Create File Handle
+        except IOError:
+                print "Cannot Open File", filePath
+        else:
+                for line in fh:
+                        if measure in line:
+                                line = line.split() # split into a list
+                                line = line[len(line)-1] #print the last element in the list
+                                line = int(line.rstrip('ms')) #strip the right most part
+                                messageProcessed.append(line)
+
+                                listLen = len(messageProcessed)
+                                minVal = min(messageProcessed)
+                                maxVal = max(messageProcessed)
+                                avgVal = sum(messageProcessed)/listLen
+#                               avgVal = round(avgVal, 2)
+
+                                if minVal >= 1000:
+                                        minVal = str(minVal/1000.0) + "s"
+                                else:
+                                        minVal = str(minVal) + "ms"
+                                if maxVal >= 1000:
+                                        maxVal = str(round(maxVal/1000.0, 2)) + "s"
+                                else:
+                                        maxVal = str(round(maxVal,3)) + "ms"
+                                if avgVal >= 1000:
+                                        avgVal = str(avgVal) + "s"
+                                else:
+                                        avgVal = str(avgVal) + "ms"
+                if listLen > 0:
+                        totCount.append(listLen)
+                        return "%d\t\t%s\t\t%s\t\t%s" %(listLen, minVal, avgVal, maxVal)
+                else:
+                        pass
+                fh.close() # Close File Handle
+
+
+
+header = "Logfile\t\t\tCount\t\tMin\t\tAvg\t\tMax"
+
+while 1:
+        totCount = []
+        print "\n" + time.ctime() + "\n"
+        print header+"\n"
+        print "------------------------------------------------------------------------------"
+        for file in fileList:
+                retVal = processFile(file)
+                if retVal is not None:
+                        print file + "\t" + retVal
+        totCount = sum(totCount)
+        print "\n\n\t\tThe total count:%d" %(totCount)
+
+        time.sleep(120)
