@@ -51,7 +51,7 @@ def threadWorker():
 
                 #Loop through each key/value pair
                 for key in myDict:
-                        getResponse =  "http://ltms001.ld.medplus.com:8080/scripts/mgwms32.dll?MGWLPN=c3qadb1&MGWAPP=ewdwl&app=QA-FUSION&page=restServer&method=IIReport&BusinessUnit=TMP&ClientNumber=97502840&ReportedDate=" + myDict[key] + "&AccessionNumber=" + key
+                        getResponse =  "http://serverendpoint"
                         print getResponse
                         startTime = time.time()
                         #print startTime
