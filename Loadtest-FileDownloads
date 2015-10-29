@@ -1,0 +1,85 @@
+#!usr/bin/python -w
+
+import time
+import subprocess
+import os
+import re
+from threading import Event # Returns a new event object
+from threading import Thread
+from threading import current_thread #Returns the current thread object.
+from datetime import date
+import wget
+
+
+# Threads Running @ peak load
+NUM_THREADS = 2
+
+# Test Duration
+DURATION = 1 # minutes
+
+# Thread Delay.
+DELAY_BETWEEN_THREAD_START = 30 # seconds
+
+quitevent = Event()
+
+#Global Variables
+myList = []
+
+currentWD = os.getcwd()
+print "\n\nThe current working directory is: %s\n" %currentWD
+#Accessing test data file below
+f = open('myfile.txt', "r")
+for line in iter(f):
+        print line
+        line = line.strip("\n")
+        myList.append(line)
+f.close()
+print myList
+myDict = dict(i.split() for i in myList)
+print "The dict values length: %d" %len(myDict.values())
+
+
+def threadWorker():
+        print "Thread started:%s" %current_thread().getName()
+        while not quitevent.is_set():
+
+                #Loop through each key/value pair
+                for key in myDict:
+                        getResponse =  "http://test url"
+                        print getResponse
+                        startTime = time.time()
+                        #print startTime
+
+                        #Extract the response
+                        wget.download(getResponse)
+                        endTime = time.time() - startTime
+                        #print endTime
+                        fw = open('responseTime.log', "a")
+                        fw.write(str(date.today()) + " : " + current_thread().getName() + " : " + str(endTime))
+                        fw.write("\n")
+                        fw.close()
+        print "Thread finished: %s" %current_thread().getName()
+
+
+if __name__ =="__main__":
+    runtime = (DURATION * 60 + DELAY_BETWEEN_THREAD_START * NUM_THREADS)
+    print "Total runtime will be: %d seconds" %runtime
+    threads = [ ]
+    try:
+        for i in range(NUM_THREADS):
+            t = Thread(target=threadWorker)
+            t.start()
+            threads.append(t)
+            time.sleep(DELAY_BETWEEN_THREAD_START)
+        print "All threads running"
+        time.sleep(DURATION*60)
+        print "Completed full time at peak, shutting down threads"
+    except:
+        print "Exception raised, shutting down threads"
+
+quitevent.set()
+time.sleep(3)
+for t in threads:
+    t.join(1.0)
+    print "Exiting Main Thread"
+
