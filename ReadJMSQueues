@@ -1,0 +1,132 @@
+#!/usr/bin/jython -w
+
+from java.util import Date
+from java.text import SimpleDateFormat
+from java.lang.Object import *
+
+#global variables
+qlistCols = ["Curr Cnt", "Del Curr Cnt", "PendingCount",
+             "HighCount", "ReceivedCount", "BytesCurrentCount", "ThresholdTime"]
+dpq = {}
+
+#date = Date()
+dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+
+
+def connectToServer():
+	username = 'uname'
+	password = 'passwd'
+	url = 'url:port'
+	try:
+		connect(username, password, url)
+		print "connected"
+	except ConnectionException, e:
+		print "Unable to Connect to Admin Server.."
+		exit()
+
+
+def disconnectFromServer():
+	disconnect()
+	exit()
+
+def printJMSMessagesCount():
+       	servers = domainRuntimeService.getServerRuntimes();
+	#print servers
+	if (len(servers) > 0):
+		for server in servers:
+                        #print server
+			jmsRuntime = server.getJMSRuntime()
+			#print jmsRuntime
+			jmsServers = jmsRuntime.getJMSServers()
+			for jmsServer in jmsServers:
+				destinations = jmsServer.getDestinations()
+				for destination in destinations:
+                                        for queue in (str(destination)).split(","):
+						if "EventAuditQueue" in queue:
+##                                                      print "\n********************************************************************\n"
+#							print queue.lstrip("!")
+##							print "\n********************************************************************\n"
+##                                                       # dpq = {Date(): [int(destination.getMessagesHighCount())]}
+##                                                        dpq = {Date(): [int(destination.getMessagesCurrentCount()), int(destination.getMessagesDeletedCurrentCount()),
+##                                                               int(destination.getMessagesPendingCount()), int(destination.getMessagesHighCount()),
+##                                                               int(destination.getMessagesReceivedCount()), int(destination.getBytesCurrentCount()),
+##                                                               int(destination.getMessagesThresholdTime())]}
+                                                        #dpq.update(dpq)
+                                                        #for key, value in dpq.iteritems():
+                                                        print "%s\t%s\t%s\t\t%s\t\t\t%s\t\t%s" %(dateFormat.format(Date()), queue, int(destination.getMessagesCurrentCount()), destination.getMessagesDeletedCurrentCount(), destination.getMessagesPendingCount(),
+                                                                                         destination.getMessagesHighCount())
+                                                        #print Date()											
+							
+##							print '  MessagesCurrentCount:        ' ,  destination.getMessagesCurrentCount()
+##							print '  MessagesDeletedCurrentCount: ' ,  destination.getMessagesDeletedCurrentCount()
+##							print '  MessagesPendingCount:        ' ,  destination.getMessagesPendingCount()
+##							print '  MessagesHighCount:           ' ,  destination.getMessagesHighCount()
+##							print '  MessagesReceivedCount:	      ' ,  destination.getMessagesReceivedCount()
+##							print '  BytesCurrentCount:           ' ,  destination.getBytesCurrentCount()
+##							print '  MessagesThresholdTime:       ' ,  destination.getMessagesThresholdTime()
+##							print '\n \n'
+####							print "%20s %20s %20s %20s %20s" %("*MessagesCurrentCount:*", "*MessagesDeletedCurrentCount:*", "MessagesPendingCount*", "MessagesHighCount*", "MessagesReceivedCount*")
+####							print "%20s %20s %20s %20s %20s" %(destination.getMessagesCurrentCount(), destination.getMessagesDeletedCurrentCount(), destination.getMessagesPendingCount(), destination.getMessagesHighCount(), destination.getMessagesReceivedCount()
+####)
+####							print dir(pprint)
+##							
+
+
+
+
+                
+connectToServer()
+
+#appRuntimes=[]
+servers = domainRuntimeService.getServerRuntimes()
+for server in servers:
+        apps = server.getApplicationRuntimes()
+        for app in apps:
+                if 'care360-back' in app.getName():
+                        #print "The app loop is %s \n" %app.getName()
+                        crs = app.getComponentRuntimes()
+                        for cr in crs:
+                                if(cr.getType() == 'EJBComponentRuntime' and 'jar' in cr.getName()):
+                                        #print "The component runtime is %s \n" %cr.getName()
+                                        ejbRTS = cr.getEJBRuntimes()
+                                        for ejbRT in ejbRTS:
+                                             #print ' EJBRunTime: ' + ejbRT.getName() + ' Type ' + ejbRT.getType() +"\n"
+                                             if (ejbRT.getType() == 'MessageDrivenEJBRuntime' and 'EventAuditQueue' in ejbRT.getName()):
+                                             #if 'EventAuditLog' in ejbRT:
+                                                     ejbTRS = ejbRT.getTransactionRuntime()
+                                                     print ejbRT.getName()
+                                                     print ejbTRS.getTransactionsCommittedTotalCount()
+                                                     print ejbTRS.getTransactionsRolledBackTotalCount()
+                                                     print ejbTRS.getTransactionsTimedOutTotalCount()
+                                                                                                      
+                                                     
+                                                     #print '  MDB Status: ' + ejbRT.getMDBStatus() + ', MDB Health State: ' + repr(ejbRT.getHealthState())
+                                                     
+                                            # if (ejbRT.getType() == 'StatelessEJBRuntime'):
+                                                     #print '  -EJB Name: ' + ejbRT.getEJBName();
+                                                    # print '  -Resources: ' + repr(ejbRT.getTransactionRuntime());
+                #for i in component:
+                #   print i
+
+##apps = [];  
+##app_deployments = cmo.getAppDeployments()
+##for app_deployment in app_deployments:
+##    print app_deployment.getComponentRuntimes()  
+##    apps.append(app_deployment.getName());
+##
+##print apps
+##
+##for app in apps:
+##        module = app.getComponentRuntimes()
+##        print module
+print "\nDate\t\t\tQueue\t\t\t\t\t\t\tCurr Cnt\tDel Curr Cnt\tPendingCount\tHighCount"
+
+#while 1:
+        #print "In While"
+	#printJMSMessagesCount()
+	#java.lang.Thread.sleep(1000)
+
+disconnectFromServer()
+
+
+ 
