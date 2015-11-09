@@ -1,6 +1,5 @@
 ###################################################################################################################
 ##Purpose: This Program reads the weblogic JMS config files and lists the JMS queues by their respective clusters ##
-## Author: Chetana Katpally
 ###################################################################################################################
 #!ussr/bin/python -w 
 
